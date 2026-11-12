@@ -136,18 +136,18 @@ make test OPENSSL_PREFIX=$(brew --prefix openssl@3)
 
 ### Interactive execution on Lotus (SLURM)
 
-Following the professor's Lab 4 convention (`srun -n 8 ./lab4` / `./lab4 --sweep`),
-ParallelCrack uses the same launcher. On Lotus, MPI programs are launched with
-`srun --mpi=pmi2` (as in the Lab 3 batch file):
+On Lotus, run ParallelCrack inside a SLURM allocation with **`srun --mpi=pmix`**.
+PMIx is the verified launcher — it starts one coordinated MPI job; `--mpi=pmi2` was
+observed to start independent singleton processes, so do not use it.
 
 ```sh
-# The two strategies, 8 processes
-srun --mpi=pmi2 -n 8 ./parallelcrack --strategy collective
-srun --mpi=pmi2 -n 8 ./parallelcrack --strategy async
+# Inside an allocation (e.g. salloc --partition=compute --nodes=1 --ntasks=8 ...):
+srun --mpi=pmix -n 8 ./parallelcrack --strategy collective
+srun --mpi=pmix -n 8 ./parallelcrack --strategy async
 
-# Full-sweep benchmarking workload (target at the last index -> whole keyspace)
-srun --mpi=pmi2 -n 8 ./parallelcrack --strategy collective --full-sweep
-srun --mpi=pmi2 -n 8 ./parallelcrack --strategy async --full-sweep
+# Full-sweep workload: unmatchable target -> every rank scans the whole keyspace
+srun --mpi=pmix -n 8 ./parallelcrack --strategy collective --full-sweep
+srun --mpi=pmix -n 8 ./parallelcrack --strategy async --full-sweep
 ```
 
 The workload stays configurable: `--length` (password length), `--batch` (batch
@@ -156,17 +156,25 @@ size), and `--poll` (async stop-check interval, in batches). Run
 
 ## Benchmarking
 
-`benchmarks/run.sh` sweeps a range of process counts, writes one CSV row per run,
-and `benchmarks/plot.py` turns that CSV into speedup / efficiency / hash-rate
-plots. The strong-scaling study uses the Lab 4 process counts
-(1, 2, 4, 8, 16, 32, 48, 96, 192, 384, 768, 960) with a fixed global workload, and
-compares both strategies on identical inputs. See
-[`benchmarks/README.md`](benchmarks/README.md) for the exact `srun`/`sbatch`
-commands and the node/task mapping for Lotus.
+Benchmarking on Lotus is a deliberate, two-stage, manual process — no job is ever
+submitted automatically:
 
-Measured results are **not** committed and are **never** fabricated. The
-`results/` directory holds a README explaining how to generate and export them;
-the actual numbers come from your own runs.
+1. **Smoke test** — `benchmarks/lotus_smoke.sbatch`: one node, 4 tasks, 5 minutes,
+   with a correctness check. Submit it yourself with `sbatch`.
+2. **Single-node benchmark** — `benchmarks/lotus_benchmark.sbatch`: process counts
+   1–48 on one node, sequential, 5 repetitions, with separate **full-sweep**
+   (fixed exhaustive workload) and **early-termination** (findable target)
+   experiments. It stops on any correctness failure and supports a `DRYRUN=1`
+   preview. Run it only after the smoke test passes.
+
+For local experiments, `benchmarks/run.sh` sweeps process counts with `mpirun` and
+`benchmarks/plot.py` turns the CSV into speedup / efficiency / hash-rate plots. See
+[`benchmarks/README.md`](benchmarks/README.md) for the exact `sbatch` workflow,
+resource limits, monitoring, and result-export commands.
+
+Measured results are **not** committed and are **never** fabricated, and no scaling
+claim is published until it has been measured on the target hardware. The
+`results/` directory holds a README explaining how to generate and export them.
 
 ## Roadmap
 

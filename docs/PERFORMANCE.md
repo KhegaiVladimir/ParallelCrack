@@ -39,21 +39,53 @@ where the baseline is the smallest process count in the data (normally 1).
   taking the maximum across ranks. It therefore includes synchronization wait time,
   which is a real part of coordination cost.
 
-## Controlling the workload
+## Two experiment types
 
-For a scaling study, hold everything constant except the process count:
+The benchmark runs two distinct experiments, because "how fast does it scan
+everything" and "how fast does it stop once it finds the answer" are different
+questions:
 
-* Fix `--length`, `--alphabet`, and `--batch`.
-* Use `--full-sweep` (target at the last index) or `--no-match` so the search is
-  long and stable. A target found early finishes before scaling behavior is
-  visible and produces noisy timings.
-* Use `--repeats 3` (or more) and let `plot.py` average the repeats.
+* **Full-sweep (`--full-sweep`)** — the target is **unmatchable**, so every
+  strategy scans the entire keyspace and evaluates *exactly* `keyspace` candidates
+  with no early termination. This is the fixed, deterministic global workload used
+  for strong scaling, and it guarantees both strategies do identical work. The
+  candidate count is validated on every run.
+
+  > This matters: an earlier version put a *findable* target at the last index.
+  > With the asynchronous strategy, the rank that owns that index found it and
+  > signalled the others to stop, so they abandoned their last few batches — a
+  > timing-dependent undercount (e.g. 11,824,344 instead of 11,881,376 for length
+  > 5). A valid fixed-work measurement must scan everything, so full-sweep now uses
+  > an unmatchable target.
+
+* **Early-termination (`--index K`)** — the target is a real candidate at a fixed
+  index, identical for both strategies. The search finds it and ranks stop early.
+  Here the asynchronous strategy evaluating fewer candidates than collective is the
+  *measured effect*, not an error. This experiment measures how quickly each
+  strategy terminates once the answer is found.
+
+For either experiment, hold everything else constant across process counts: fix
+`--length`, `--alphabet`, `--batch`, and `--poll`, use ≥ 3 repetitions, and let
+`plot.py` average them.
+
+## Execution modes on Lotus (SLURM)
+
+* **Interactive allocation (`salloc`)** reserves nodes; you then run `srun` inside
+  it. **Batch (`sbatch`)** queues a script to run on compute nodes later. In both,
+  **`srun` inside the allocation** launches the MPI job across the reserved tasks.
+  Running **`srun` without a valid allocation** would fall back to the login node —
+  which must never be used for benchmarks; the provided scripts refuse to do so.
+* ParallelCrack is launched with **`srun --mpi=pmix`** — the verified PMI. PMI2 was
+  observed to start uncoordinated singleton processes.
 
 ## Process-count plan
 
-* **Single node:** 1, 2, 4, 8, 16, 32, 48 processes.
-* **Multi-node (planned, v0.5):** 96–960 processes. These are launched
-  deliberately, never scheduled automatically.
+* **Initial benchmark — single node only:** 1, 2, 4, 8, 16, 32, 48 processes,
+  five repetitions each, run strictly sequentially via
+  `benchmarks/lotus_benchmark.sbatch`.
+* Larger, multi-node counts are intentionally out of scope for this stage. The
+  professor's 35-node / 1680-task configuration is **not** used. Any future
+  multi-node work (see the roadmap) is launched deliberately, never automatically.
 
 ## Expected effects to look for
 
