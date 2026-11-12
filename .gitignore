@@ -7,10 +7,10 @@
 /parallelcrack
 /bin/
 
-# Locally generated benchmark artifacts (never commit machine-specific runs)
-results/*.csv
-results/*.png
-results/*.pdf
+# Locally generated benchmark artifacts (never commit machine-specific runs):
+# CSVs, plots, metadata, result archives, and SLURM .out/.err logs all land in
+# results/. Ignore everything there except the explanatory README.
+results/*
 !results/README.md
 
 # Synthetic encrypted test files generated at runtime
