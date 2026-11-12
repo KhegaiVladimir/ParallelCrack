@@ -40,12 +40,30 @@ SRCS := $(wildcard src/*.c) $(wildcard src/strategies/*.c)
 OBJS := $(patsubst src/%.c,$(BUILD)/%.o,$(SRCS))
 DEPS := $(OBJS:.o=.d)
 
-.PHONY: all clean
+# Launcher used by the integration tests. Override on a cluster, e.g. MPIRUN=srun.
+MPIRUN ?= mpirun --oversubscribe
+
+.PHONY: all clean test
 
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(MPICC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
+
+# Unit-test binary: links only the pieces it needs (no MPI, but built with mpicc
+# so it picks up the same OpenSSL flags).
+$(BUILD)/test_search: tests/test_search.c src/search.c src/crypto.c
+	@mkdir -p $(BUILD)
+	$(MPICC) $(CFLAGS) $(CPPFLAGS) -o $@ \
+		tests/test_search.c src/search.c src/crypto.c $(LDFLAGS) $(LDLIBS)
+
+# Run unit tests then integration tests.
+test: all $(BUILD)/test_search
+	@echo "=== unit tests ==="
+	@$(BUILD)/test_search
+	@echo
+	@echo "=== integration tests ==="
+	@MPIRUN="$(MPIRUN)" PROG=./$(TARGET) bash tests/run_tests.sh
 
 # Compile each source to build/..., mirroring the src/ subdirectory layout.
 # -MMD -MP writes header dependency files so edits to headers trigger rebuilds.
