@@ -32,6 +32,8 @@ typedef struct {
     long        target_index;    /* used when mode == TARGET_INDEX (-1 = default) */
     char        target_password[SEARCH_MAX_LENGTH + 1]; /* used when mode == TARGET_PASSWORD */
     int         quiet;           /* suppress the human-readable banner */
+    int         recover;         /* 1 if a file-recovery demo was requested */
+    char        recover_path[256]; /* base path for the file-recovery demo */
     int         ok;              /* 0 if parsing failed and we should exit */
 } run_params;
 
@@ -68,6 +70,9 @@ static void print_usage(const char *program)
     printf("  --password <STR>    Target is this explicit password\n");
     printf("  --no-match          Use a target no candidate can match (no-match test)\n");
     printf("  --full-sweep        Put the target at the last index (worst-case sweep)\n");
+    printf("  --recover-file <P>  After finding the password, encrypt a synthetic\n");
+    printf("                      file and recover it to prove the password is correct\n");
+    printf("                      (writes P.plain, P.enc, P.recovered)\n");
     printf("  --quiet             Only print the one-line metrics summary\n");
     printf("  --help              Show this help and exit\n");
 }
@@ -88,6 +93,8 @@ static run_params parse_args(int argc, char **argv)
     p.target_index  = -1;   /* -1 means "pick a sensible default once keyspace is known" */
     p.target_password[0] = '\0';
     p.quiet         = 0;
+    p.recover       = 0;
+    p.recover_path[0] = '\0';
     p.ok            = 1;
 
     int want_full_sweep = 0;
@@ -140,6 +147,11 @@ static run_params parse_args(int argc, char **argv)
             p.mode = TARGET_ABSENT;
         } else if (strcmp(argv[i], "--full-sweep") == 0) {
             want_full_sweep = 1;
+        } else if (strcmp(argv[i], "--recover-file") == 0 && i + 1 < argc) {
+            i++;
+            p.recover = 1;
+            strncpy(p.recover_path, argv[i], sizeof(p.recover_path) - 1);
+            p.recover_path[sizeof(p.recover_path) - 1] = '\0';
         } else if (strcmp(argv[i], "--quiet") == 0) {
             p.quiet = 1;
         } else {
@@ -160,6 +172,19 @@ static run_params parse_args(int argc, char **argv)
     return p;
 }
 
+/* Resolve the target index for TARGET_INDEX mode, turning the two sentinels
+   (-1 = default middle, -2 = full-sweep last) into a concrete index. */
+static long resolve_target_index(const run_params *p, long keyspace)
+{
+    long index = p->target_index;
+    if (index == -1) {
+        index = keyspace / 2;       /* default: middle of the keyspace */
+    } else if (index == -2) {
+        index = keyspace - 1;       /* full sweep: the last candidate */
+    }
+    return index;
+}
+
 /* Build an identical search_config on any rank from the broadcast parameters.
    Returns 0 on success, -1 on an invalid combination. */
 static int build_config(const run_params *p, search_config *config)
@@ -175,13 +200,7 @@ static int build_config(const run_params *p, search_config *config)
             return -1;
         }
     } else {
-        /* TARGET_INDEX, possibly with a sentinel to resolve. */
-        long index = p->target_index;
-        if (index == -1) {
-            index = config->keyspace / 2;   /* default: middle of the keyspace */
-        } else if (index == -2) {
-            index = config->keyspace - 1;   /* full sweep: the last candidate */
-        }
+        long index = resolve_target_index(p, config->keyspace);
         if (index < 0 || index >= config->keyspace) {
             return -1;
         }
@@ -189,6 +208,102 @@ static int build_config(const run_params *p, search_config *config)
     }
 
     return 0;
+}
+
+/*
+ * Work out the secret password string that the target represents. Rank 0 uses
+ * this to set up the file-recovery demo: it is the password that "someone"
+ * encrypted the file with, and the search then independently has to find it.
+ * Writes an empty string for the no-match target (nothing to recover).
+ */
+static void resolve_secret_password(const run_params *p, const search_config *config,
+                                    char *secret_out)
+{
+    if (p->mode == TARGET_ABSENT) {
+        secret_out[0] = '\0';
+    } else if (p->mode == TARGET_PASSWORD) {
+        strncpy(secret_out, p->target_password, SEARCH_MAX_LENGTH);
+        secret_out[SEARCH_MAX_LENGTH] = '\0';
+    } else {
+        long index = resolve_target_index(p, config->keyspace);
+        search_index_to_candidate(config, index, secret_out);
+    }
+}
+
+/*
+ * The file-recovery demo. Runs on rank 0 only, entirely outside the search
+ * timing. It:
+ *   1. generates a small synthetic plaintext and writes it to <base>.plain,
+ *   2. encrypts it to <base>.enc using the key derived from the SECRET password
+ *      (this models an already-encrypted file that existed before the search),
+ *   3. decrypts <base>.enc to <base>.recovered using the password the search
+ *      FOUND, and
+ *   4. compares the recovered bytes against the original.
+ * Returns 1 if the recovered file matches the original, 0 otherwise.
+ */
+static int run_file_recovery(const char *secret, const char *found_password,
+                             const char *base_path)
+{
+    char plain_path[300];
+    char enc_path[300];
+    char recovered_path[300];
+    snprintf(plain_path, sizeof(plain_path), "%s.plain", base_path);
+    snprintf(enc_path, sizeof(enc_path), "%s.enc", base_path);
+    snprintf(recovered_path, sizeof(recovered_path), "%s.recovered", base_path);
+
+    /* A fixed IV keeps the demo deterministic. A fixed IV is NOT appropriate for
+       real encryption, but this is a self-contained correctness demo, not a
+       security tool, so it is fine here. */
+    static const unsigned char demo_iv[CRYPTO_AES_IV_LEN] = {
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+        0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
+    };
+
+    /* Build a small, deterministic synthetic plaintext. Nothing here is real or
+       sensitive: it is just bytes to prove the round trip works. */
+    unsigned char plaintext[1024];
+    for (int i = 0; i < (int)sizeof(plaintext); i++) {
+        plaintext[i] = (unsigned char)('A' + (i % 26));
+    }
+
+    FILE *plain_file = fopen(plain_path, "wb");
+    if (plain_file == NULL) {
+        return 0;
+    }
+    fwrite(plaintext, 1, sizeof(plaintext), plain_file);
+    fclose(plain_file);
+
+    /* Step 2: encrypt with the secret password's key. */
+    unsigned char secret_key[CRYPTO_AES_KEY_LEN];
+    crypto_key_from_password(secret, secret_key);
+    if (crypto_encrypt_file(secret_key, demo_iv, plain_path, enc_path) != 0) {
+        return 0;
+    }
+
+    /* Step 3: decrypt with the FOUND password's key. If the search found the
+       right password, this key equals the secret key and decryption succeeds. */
+    unsigned char found_key[CRYPTO_AES_KEY_LEN];
+    crypto_key_from_password(found_password, found_key);
+    if (crypto_decrypt_file(found_key, demo_iv, enc_path, recovered_path) != 0) {
+        return 0;
+    }
+
+    /* Step 4: compare recovered bytes against the original plaintext. */
+    FILE *recovered_file = fopen(recovered_path, "rb");
+    if (recovered_file == NULL) {
+        return 0;
+    }
+    unsigned char recovered[1024];
+    size_t recovered_len = fread(recovered, 1, sizeof(recovered), recovered_file);
+    fclose(recovered_file);
+
+    if (recovered_len != sizeof(plaintext)) {
+        return 0;
+    }
+    if (memcmp(recovered, plaintext, sizeof(plaintext)) != 0) {
+        return 0;
+    }
+    return 1;
 }
 
 int main(int argc, char **argv)
@@ -234,6 +349,26 @@ int main(int argc, char **argv)
     search_result result;
     strategy(&config, MPI_COMM_WORLD, &result);
 
+    /* Optional file-recovery demo: rank 0 only, and entirely outside the search
+       timing above (the search time is measured inside the strategy). We report
+       whether the found password actually recovers a file encrypted with the
+       secret. recovery_state: -1 = not requested, 0 = failed, 1 = verified. */
+    int recovery_state = -1;
+    if (rank == 0 && params.recover == 1) {
+        if (result.found == 1) {
+            char secret[SEARCH_MAX_LENGTH + 1];
+            resolve_secret_password(&params, &config, secret);
+            if (secret[0] != '\0') {
+                recovery_state = run_file_recovery(secret, result.password,
+                                                   params.recover_path);
+            } else {
+                recovery_state = 0;
+            }
+        } else {
+            recovery_state = 0; /* nothing was found, so nothing can be recovered */
+        }
+    }
+
     /* Only rank 0 reports. */
     if (rank == 0) {
         double hashes_per_second = 0.0;
@@ -263,14 +398,20 @@ int main(int argc, char **argv)
             printf("  hashes/sec    : %.0f\n", hashes_per_second);
             printf("  comm seconds  : %.6f\n", result.comm_seconds);
             printf("  rounds        : %ld\n", result.rounds);
+            if (recovery_state == 1) {
+                printf("  file recovery : VERIFIED (recovered bytes match original)\n");
+            } else if (recovery_state == 0) {
+                printf("  file recovery : FAILED\n");
+            }
         } else {
             printf("strategy=%s nprocs=%d length=%d alphabet_size=%d batch=%ld "
                    "found=%d finder_rank=%d candidates=%ld wall_seconds=%.6f "
-                   "hashes_per_second=%.0f comm_seconds=%.6f\n",
+                   "hashes_per_second=%.0f comm_seconds=%.6f recovery=%d\n",
                    strategy_name(params.strategy), size, config.length,
                    config.symbol_count, config.batch_size, result.found,
                    result.finder_rank, result.candidates_evaluated,
-                   result.wall_seconds, hashes_per_second, result.comm_seconds);
+                   result.wall_seconds, hashes_per_second, result.comm_seconds,
+                   recovery_state);
         }
     }
 
