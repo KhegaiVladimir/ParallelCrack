@@ -6,13 +6,29 @@ semantic versioning once it reaches a tagged release.
 
 ## [Unreleased]
 
-### Added
-- Project foundation: directory layout, build system, and documentation skeleton.
-- Deterministic keyspace search engine with SHA-256 candidate verification.
-- Collective MPI strategy using `MPI_Allreduce` for coordinated early termination.
-- Asynchronous MPI strategy using non-blocking point-to-point coordination.
-- Synthetic AES-256-CBC encrypted file generation and recovery.
-- Correctness tests for single- and multi-process runs.
-- SLURM / mpirun benchmarking scripts and a pandas + matplotlib plotting script.
+Nothing yet. See the roadmap for what v0.2 adds.
 
-This section will be cut into a `v0.1.0` entry when the first release is tagged.
+## [0.1.0] — 2026-11-12
+
+First independent release: a working comparison of two MPI communication
+strategies over a shared, deterministic keyspace search.
+
+### Added
+- Project foundation: directory layout, build system, and documentation.
+- Deterministic keyspace search engine with SHA-256 candidate verification and
+  static cyclic work distribution.
+- Collective MPI strategy using `MPI_Allreduce` for coordinated early termination.
+- Asynchronous MPI strategy using non-blocking point-to-point coordination
+  (`MPI_Iprobe` / `MPI_Irecv` / `MPI_Test` / `MPI_Send` / `MPI_Isend` / `MPI_Wait`).
+- Synthetic AES-256-CBC encrypted file generation and recovery, verified against
+  the original bytes.
+- Unit tests (candidate coverage, determinism) and multi-process integration
+  tests for both strategies.
+- `mpirun` / SLURM benchmarking scripts and a pandas + matplotlib plotting script
+  that derives speedup and parallel efficiency from measured data.
+- Architecture, MPI protocol, and performance-methodology documentation.
+
+### Notes
+- Builds cleanly under `mpicc -std=c11 -Wall -Wextra -Wpedantic -Werror`.
+- Measured benchmark data is never committed (the `results/` directory is
+  git-ignored) and is never fabricated.
