@@ -27,6 +27,14 @@ required scenario, for **both** strategies:
 | Correct file recovery               | `--recover-file` → `recovery=1`                   |
 | No missing/duplicated candidates    | unit test coverage check + full-scan counts       |
 | Both strategies agree               | collective vs async finder cross-check            |
+| Full-sweep evaluates whole keyspace | `--full-sweep` candidate count == keyspace, both strategies, np 1–4 |
+
+The full-sweep check is important: a full sweep must evaluate **exactly** the whole
+keyspace, deterministically, for every strategy. An earlier version let the
+asynchronous strategy's early-termination race undercount the sweep (because a
+findable last-index target let one rank stop the others a few batches short). The
+fix makes `--full-sweep` use an unmatchable target so no rank terminates early, and
+these tests assert the exact count.
 
 ## Running
 

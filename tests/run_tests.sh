@@ -113,6 +113,34 @@ for np in 1 2 4 5; do
     done
 done
 
+# Full-sweep correctness: an exhaustive sweep must evaluate EXACTLY the whole
+# keyspace, deterministically, for BOTH strategies and every process count
+# (including counts that do not evenly divide the keyspace). This guards against
+# the async early-termination race that previously undercounted the full sweep.
+echo
+echo "-- full-sweep: exhaustive scan evaluates exactly the keyspace --"
+# lower alphabet: 26^4 = 456976, 26^3 = 17576.
+for spec in "4 456976" "3 17576"; do
+    set -- $spec
+    len="$1"
+    keyspace="$2"
+    for strat in collective async; do
+        for np in 1 2 3 4; do
+            out="$($MPIRUN -np "$np" "$PROG" --strategy "$strat" --length "$len" \
+                   --full-sweep --quiet 2>&1)"
+            got="$(field "$out" candidates)"
+            if [ "$got" = "$keyspace" ]; then
+                echo "ok   [full-sweep $strat len=$len np=$np candidates=$got]"
+                pass=$((pass + 1))
+            else
+                echo "FAIL [full-sweep $strat len=$len np=$np: expected $keyspace got $got]"
+                echo "      output: $out"
+                fail=$((fail + 1))
+            fi
+        done
+    done
+done
+
 echo
 echo "== integration summary: $pass passed, $fail failed =="
 if [ $fail -eq 0 ]; then

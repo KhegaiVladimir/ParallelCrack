@@ -74,7 +74,8 @@ static void print_usage(const char *program)
     printf("  --index <K>         Target is the candidate at index K (reproducible)\n");
     printf("  --password <STR>    Target is this explicit password\n");
     printf("  --no-match          Use a target no candidate can match (no-match test)\n");
-    printf("  --full-sweep        Put the target at the last index (worst-case sweep)\n");
+    printf("  --full-sweep        Exhaustively scan the whole keyspace (unmatchable\n");
+    printf("                      target; fixed deterministic work, no early stop)\n");
     printf("  --recover-file <P>  After finding the password, encrypt a synthetic\n");
     printf("                      file and recover it to prove the password is correct\n");
     printf("                      (writes P.plain, P.enc, P.recovered)\n");
@@ -181,9 +182,10 @@ static run_params parse_args(int argc, char **argv)
         }
     }
 
-    /* Full sweep means "target at the very last index", so the search has to scan
-       the entire keyspace. We encode it as index -2 and resolve it below once the
-       keyspace is known. */
+    /* Full sweep means "scan the entire keyspace". We encode it with the
+       sentinel index -2, which build_config turns into an unmatchable target so
+       every strategy evaluates the whole keyspace deterministically (see the
+       explanation in build_config). */
     if (want_full_sweep == 1) {
         p.mode = TARGET_INDEX;
         p.target_index = -2;
@@ -222,6 +224,15 @@ static int build_config(const run_params *p, search_config *config)
         if (search_set_target_password(config, p->target_password) != 0) {
             return -1;
         }
+    } else if (p->target_index == -2) {
+        /* Full sweep: scan the ENTIRE keyspace. We use a target that no candidate
+           can match, so every strategy evaluates exactly 'keyspace' candidates
+           and no rank can terminate early. This gives a fixed, deterministic
+           global workload -- the right basis for a strong-scaling comparison.
+           A findable target here would let the asynchronous strategy signal stop
+           and leave other ranks a few batches short, producing a timing-dependent
+           undercount that is not a valid fixed-work measurement. */
+        search_set_target_absent(config);
     } else {
         long index = resolve_target_index(p, config->keyspace);
         if (index < 0 || index >= config->keyspace) {
