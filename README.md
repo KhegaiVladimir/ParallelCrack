@@ -1,6 +1,7 @@
 # ParallelCrack — MPI Communication & Performance Benchmark
 
-ParallelCrack is a small, self-contained HPC project for studying **how the choice
+ParallelCrack is a small, self-contained HPC project — an ongoing undergraduate
+project that grew out of COMP 380 coursework — for studying **how the choice
 of MPI communication strategy affects the performance of a distributed keyspace
 search**. It uses a synthetic password-search workload as a consistent, repeatable
 benchmark so that the only thing that changes between experiments is the way the
@@ -172,9 +173,36 @@ For local experiments, `benchmarks/run.sh` sweeps process counts with `mpirun` a
 [`benchmarks/README.md`](benchmarks/README.md) for the exact `sbatch` workflow,
 resource limits, monitoring, and result-export commands.
 
-Measured results are **not** committed and are **never** fabricated, and no scaling
-claim is published until it has been measured on the target hardware. The
-`results/` directory holds a README explaining how to generate and export them.
+Measured results are **never** fabricated, and no scaling claim is published until
+it has been measured on the target hardware. Local results stay git-ignored; runs
+that the documentation quotes are archived with their raw CSVs and metadata under
+`results/lotus/`. The `results/` directory holds a README explaining how to
+generate and export them.
+
+## Preliminary results
+
+First Lotus run (SLURM job 27836): **one node** (AMD EPYC 7352, 2 × 24 cores),
+**1–8 MPI processes**, 3 repetitions per point, length-5 keyspace (11,881,376
+candidates). All 48 runs completed and passed the correctness checks. Values are
+medians; speedup is relative to each strategy's own 1-process run.
+
+| Experiment | Strategy | Median time, p=1 → p=8 | Speedup at p=8 | Efficiency at p=8 |
+|---|---|---|---:|---:|
+| Full sweep | collective | 4.675 s → 0.631 s | 7.41× | 92.6% |
+| Full sweep | async | 4.638 s → 0.615 s | 7.54× | 94.2% |
+| Early termination | collective | 2.407 s → 0.315 s | 7.64× | 95.6% |
+| Early termination | async | 2.401 s → 0.306 s | 7.85× | 98.1% |
+
+![Full-sweep scaling on one Lotus node](results/lotus/job27836/fullsweep.svg)
+
+What this shows so far: near-linear strong scaling **up to 8 processes on a single
+node**, with low run-to-run variation (CV ≤ 2.1% in the full sweep), and only a
+small difference between the two strategies (async about 2.5% faster at p=8 in the
+full sweep). The early-termination speedups are less reliable as scaling numbers,
+because the async strategy's amount of work varies from run to run. These are
+preliminary numbers from a short, small run: nothing has been measured beyond 8
+processes or across nodes yet. Full tables, caveats, and next steps are in
+[`docs/PERFORMANCE.md`](docs/PERFORMANCE.md#experimental-results-preliminary).
 
 ## Roadmap
 
@@ -186,7 +214,7 @@ polling, multi-node scaling, and a hybrid MPI + OpenMP mode.
 
 * [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — modules and interfaces.
 * [`docs/MPI_PROTOCOLS.md`](docs/MPI_PROTOCOLS.md) — the communication patterns, with diagrams.
-* [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md) — measurement methodology.
+* [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md) — measurement methodology and preliminary results.
 
 ## License
 

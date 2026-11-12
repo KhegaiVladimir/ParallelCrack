@@ -10,8 +10,11 @@
 # Locally generated benchmark artifacts (never commit machine-specific runs):
 # CSVs, plots, metadata, result archives, and SLURM .out/.err logs all land in
 # results/. Ignore everything there except the explanatory README.
+# Exception: archived cluster runs under results/lotus/ are committed, because
+# the numbers quoted in the docs need to be traceable to raw data.
 results/*
 !results/README.md
+!results/lotus/
 
 # Synthetic encrypted test files generated at runtime
 *.enc

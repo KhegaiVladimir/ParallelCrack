@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="400" viewBox="0 0 1080 400" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+<style>.title{font-size:14px;font-weight:600;fill:#0b0b0b}.label{font-size:12px;fill:#52514e}.tick{font-size:11px;fill:#52514e}.grid{stroke:#e4e3df;stroke-width:1}.axis{stroke:#8a8983;stroke-width:1}.ref{fill:none;stroke:#8a8983;stroke-width:1.5;stroke-dasharray:5 4}</style>
+<rect width="100%" height="100%" fill="#fcfcfb"/>
+<text x="16" y="24" class="title" style="font-size:16px">ParallelCrack — Full sweep (median of 3 runs per point)</text>
+<text x="16" y="44" class="label">Lotus compute14 · AMD EPYC 7352 (2×24 cores) · length 5, lower-case alphabet, batch 2000 · SLURM job 27836</text>
+<line x1="830" x2="852" y1="20" y2="20" stroke="#2a78d6" stroke-width="2"/>
+<circle cx="841" cy="20" r="4" fill="#2a78d6"/>
+<text x="858" y="24" class="label">collective</text>
+<line x1="950" x2="972" y1="20" y2="20" stroke="#eb6834" stroke-width="2"/>
+<circle cx="961" cy="20" r="4" fill="#eb6834"/>
+<text x="978" y="24" class="label">async</text>
+<text x="56.0" y="72.0" class="title">Median wall time</text>
+<line x1="56.0" x2="346.0" y1="358.0" y2="358.0" class="grid"/>
+<text x="50.0" y="362.0" class="tick" text-anchor="end">0</text>
+<line x1="56.0" x2="346.0" y1="253.1" y2="253.1" class="grid"/>
+<text x="50.0" y="257.1" class="tick" text-anchor="end">2</text>
+<line x1="56.0" x2="346.0" y1="148.2" y2="148.2" class="grid"/>
+<text x="50.0" y="152.2" class="tick" text-anchor="end">4</text>
+<text x="56.0" y="374.0" class="tick" text-anchor="middle">1</text>
+<text x="152.7" y="374.0" class="tick" text-anchor="middle">2</text>
+<text x="249.3" y="374.0" class="tick" text-anchor="middle">4</text>
+<text x="346.0" y="374.0" class="tick" text-anchor="middle">8</text>
+<line x1="56.0" x2="346.0" y1="358.0" y2="358.0" class="axis"/>
+<text x="201.0" y="394.0" class="label" text-anchor="middle">MPI processes (one node)</text>
+<text transform="translate(14.0,222.0) rotate(-90)" class="label" text-anchor="middle">seconds</text>
+<polyline points="56.0,112.8 152.7,229.7 249.3,293.9 346.0,324.9" fill="none" stroke="#2a78d6" stroke-width="2"/>
+<circle cx="56.0" cy="112.8" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>collective, p=1: 4.675</title></circle>
+<circle cx="152.7" cy="229.7" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>collective, p=2: 2.447</title></circle>
+<circle cx="249.3" cy="293.9" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>collective, p=4: 1.223</title></circle>
+<circle cx="346.0" cy="324.9" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>collective, p=8: 0.631</title></circle>
+<polyline points="56.0,114.8 152.7,232.5 249.3,294.3 346.0,325.7" fill="none" stroke="#eb6834" stroke-width="2"/>
+<circle cx="56.0" cy="114.8" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>async, p=1: 4.638</title></circle>
+<circle cx="152.7" cy="232.5" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>async, p=2: 2.393</title></circle>
+<circle cx="249.3" cy="294.3" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>async, p=4: 1.215</title></circle>
+<circle cx="346.0" cy="325.7" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>async, p=8: 0.615</title></circle>
+<text x="416.0" y="72.0" class="title">Speedup vs. own 1-process median</text>
+<line x1="416.0" x2="706.0" y1="345.7" y2="345.7" class="grid"/>
+<text x="410.0" y="349.7" class="tick" text-anchor="end">1</text>
+<line x1="416.0" x2="706.0" y1="264.6" y2="264.6" class="grid"/>
+<text x="410.0" y="268.6" class="tick" text-anchor="end">2</text>
+<line x1="416.0" x2="706.0" y1="183.5" y2="183.5" class="grid"/>
+<text x="410.0" y="187.5" class="tick" text-anchor="end">4</text>
+<line x1="416.0" x2="706.0" y1="102.4" y2="102.4" class="grid"/>
+<text x="410.0" y="106.4" class="tick" text-anchor="end">8</text>
+<text x="416.0" y="374.0" class="tick" text-anchor="middle">1</text>
+<text x="512.7" y="374.0" class="tick" text-anchor="middle">2</text>
+<text x="609.3" y="374.0" class="tick" text-anchor="middle">4</text>
+<text x="706.0" y="374.0" class="tick" text-anchor="middle">8</text>
+<line x1="416.0" x2="706.0" y1="358.0" y2="358.0" class="axis"/>
+<text x="561.0" y="394.0" class="label" text-anchor="middle">MPI processes (one node)</text>
+<text transform="translate(374.0,222.0) rotate(-90)" class="label" text-anchor="middle">speedup (log scale)</text>
+<polyline points="416.0,345.7 512.7,264.6 609.3,183.5 706.0,102.4" class="ref"/>
+<text x="702.0" y="94.4" class="tick" text-anchor="end">ideal</text>
+<polyline points="416.0,345.7 512.7,269.9 609.3,188.8 706.0,111.3" fill="none" stroke="#2a78d6" stroke-width="2"/>
+<circle cx="416.0" cy="345.7" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>collective, p=1: 1.000</title></circle>
+<circle cx="512.7" cy="269.9" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>collective, p=2: 1.911</title></circle>
+<circle cx="609.3" cy="188.8" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>collective, p=4: 3.822</title></circle>
+<circle cx="706.0" cy="111.3" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>collective, p=8: 7.410</title></circle>
+<polyline points="416.0,345.7 512.7,268.2 609.3,189.0 706.0,109.3" fill="none" stroke="#eb6834" stroke-width="2"/>
+<circle cx="416.0" cy="345.7" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>async, p=1: 1.000</title></circle>
+<circle cx="512.7" cy="268.2" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>async, p=2: 1.938</title></circle>
+<circle cx="609.3" cy="189.0" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>async, p=4: 3.816</title></circle>
+<circle cx="706.0" cy="109.3" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>async, p=8: 7.538</title></circle>
+<text x="776.0" y="72.0" class="title">Parallel efficiency</text>
+<line x1="776.0" x2="1066.0" y1="358.0" y2="358.0" class="grid"/>
+<text x="770.0" y="362.0" class="tick" text-anchor="end">80</text>
+<line x1="776.0" x2="1066.0" y1="303.6" y2="303.6" class="grid"/>
+<text x="770.0" y="307.6" class="tick" text-anchor="end">85</text>
+<line x1="776.0" x2="1066.0" y1="249.2" y2="249.2" class="grid"/>
+<text x="770.0" y="253.2" class="tick" text-anchor="end">90</text>
+<line x1="776.0" x2="1066.0" y1="194.8" y2="194.8" class="grid"/>
+<text x="770.0" y="198.8" class="tick" text-anchor="end">95</text>
+<line x1="776.0" x2="1066.0" y1="140.4" y2="140.4" class="grid"/>
+<text x="770.0" y="144.4" class="tick" text-anchor="end">100</text>
+<line x1="776.0" x2="1066.0" y1="86.0" y2="86.0" class="grid"/>
+<text x="770.0" y="90.0" class="tick" text-anchor="end">105</text>
+<text x="776.0" y="374.0" class="tick" text-anchor="middle">1</text>
+<text x="872.7" y="374.0" class="tick" text-anchor="middle">2</text>
+<text x="969.3" y="374.0" class="tick" text-anchor="middle">4</text>
+<text x="1066.0" y="374.0" class="tick" text-anchor="middle">8</text>
+<line x1="776.0" x2="1066.0" y1="358.0" y2="358.0" class="axis"/>
+<text x="921.0" y="394.0" class="label" text-anchor="middle">MPI processes (one node)</text>
+<text transform="translate(734.0,222.0) rotate(-90)" class="label" text-anchor="middle">efficiency (%)</text>
+<polyline points="776.0,140.4 872.7,140.4 969.3,140.4 1066.0,140.4" class="ref"/>
+<text x="1062.0" y="132.4" class="tick" text-anchor="end">ideal</text>
+<polyline points="776.0,140.4 872.7,188.9 969.3,188.7 1066.0,220.6" fill="none" stroke="#2a78d6" stroke-width="2"/>
+<circle cx="776.0" cy="140.4" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>collective, p=1: 100.000</title></circle>
+<circle cx="872.7" cy="188.9" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>collective, p=2: 95.544</title></circle>
+<circle cx="969.3" cy="188.7" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>collective, p=4: 95.559</title></circle>
+<circle cx="1066.0" cy="220.6" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>collective, p=8: 92.631</title></circle>
+<polyline points="776.0,140.4 872.7,174.0 969.3,190.4 1066.0,203.3" fill="none" stroke="#eb6834" stroke-width="2"/>
+<circle cx="776.0" cy="140.4" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>async, p=1: 100.000</title></circle>
+<circle cx="872.7" cy="174.0" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>async, p=2: 96.910</title></circle>
+<circle cx="969.3" cy="190.4" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>async, p=4: 95.408</title></circle>
+<circle cx="1066.0" cy="203.3" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>async, p=8: 94.220</title></circle>
+</svg>

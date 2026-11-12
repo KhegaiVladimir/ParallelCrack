@@ -10,11 +10,16 @@ Scripts:
   one measured CSV row per run (uses `mpirun` locally).
 * **`plot.py`** — reads the CSV(s) and draws wall time, speedup, efficiency, and
   hash rate (pandas + matplotlib).
+* **`analyze_results.py`** — validates the full-sweep and early-termination CSVs
+  from one job, computes medians, spread, speedup, and efficiency, and writes
+  summary CSVs plus SVG charts (standard library only).
 * **`lotus_smoke.sbatch`** — a safe 4-process smoke test for Lotus (SLURM).
 * **`lotus_benchmark.sbatch`** — the single-node (1–48 process) benchmark for Lotus.
 
-Measured CSVs and plots are written under `results/`, which is git-ignored. No
-measured numbers are committed, and none are fabricated.
+Measured CSVs and plots are written under `results/`, which is git-ignored. The
+exception is `results/lotus/<job>/`, where archived cluster runs are kept with
+their metadata so documented results can be traced to raw data. Nothing is
+fabricated.
 
 ## Metrics collected
 

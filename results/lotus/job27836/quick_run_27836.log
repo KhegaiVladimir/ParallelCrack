@@ -1,0 +1,104 @@
+Wrote environment metadata to results/quick_meta_27836.txt
+
+### experiment: fullsweep  (csv: results/quick_fullsweep_27836.csv) ###
+[run] exp=fullsweep strat=collective np=1 rep=1/3
+      exit=0 :: strategy=collective nprocs=1 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=4.660993 hashes_per_second=2549108 comm_seconds=0.000577 recovery=-1
+[run] exp=fullsweep strat=collective np=1 rep=2/3
+      exit=0 :: strategy=collective nprocs=1 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=4.802439 hashes_per_second=2474030 comm_seconds=0.000584 recovery=-1
+[run] exp=fullsweep strat=collective np=1 rep=3/3
+      exit=0 :: strategy=collective nprocs=1 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=4.675311 hashes_per_second=2541302 comm_seconds=0.000667 recovery=-1
+[run] exp=fullsweep strat=collective np=2 rep=1/3
+      exit=0 :: strategy=collective nprocs=2 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=2.461385 hashes_per_second=4827110 comm_seconds=0.051515 recovery=-1
+[run] exp=fullsweep strat=collective np=2 rep=2/3
+      exit=0 :: strategy=collective nprocs=2 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=2.446669 hashes_per_second=4856143 comm_seconds=0.126444 recovery=-1
+[run] exp=fullsweep strat=collective np=2 rep=3/3
+      exit=0 :: strategy=collective nprocs=2 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=2.425240 hashes_per_second=4899051 comm_seconds=0.047450 recovery=-1
+[run] exp=fullsweep strat=collective np=4 rep=1/3
+      exit=0 :: strategy=collective nprocs=4 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=1.223143 hashes_per_second=9713807 comm_seconds=0.051480 recovery=-1
+[run] exp=fullsweep strat=collective np=4 rep=2/3
+      exit=0 :: strategy=collective nprocs=4 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=1.214894 hashes_per_second=9779760 comm_seconds=0.028662 recovery=-1
+[run] exp=fullsweep strat=collective np=4 rep=3/3
+      exit=0 :: strategy=collective nprocs=4 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=1.263255 hashes_per_second=9405368 comm_seconds=0.085135 recovery=-1
+[run] exp=fullsweep strat=collective np=8 rep=1/3
+      exit=0 :: strategy=collective nprocs=8 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=0.628501 hashes_per_second=18904295 comm_seconds=0.049910 recovery=-1
+[run] exp=fullsweep strat=collective np=8 rep=2/3
+      exit=0 :: strategy=collective nprocs=8 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=0.630908 hashes_per_second=18832184 comm_seconds=0.044180 recovery=-1
+[run] exp=fullsweep strat=collective np=8 rep=3/3
+      exit=0 :: strategy=collective nprocs=8 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=0.633443 hashes_per_second=18756818 comm_seconds=0.050505 recovery=-1
+[run] exp=fullsweep strat=async np=1 rep=1/3
+      exit=0 :: strategy=async nprocs=1 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=4.776425 hashes_per_second=2487504 comm_seconds=0.000000 recovery=-1
+[run] exp=fullsweep strat=async np=1 rep=2/3
+      exit=0 :: strategy=async nprocs=1 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=4.637781 hashes_per_second=2561866 comm_seconds=0.000000 recovery=-1
+[run] exp=fullsweep strat=async np=1 rep=3/3
+      exit=0 :: strategy=async nprocs=1 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=4.587556 hashes_per_second=2589914 comm_seconds=0.000000 recovery=-1
+[run] exp=fullsweep strat=async np=2 rep=1/3
+      exit=0 :: strategy=async nprocs=2 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=2.377272 hashes_per_second=4997904 comm_seconds=0.009806 recovery=-1
+[run] exp=fullsweep strat=async np=2 rep=2/3
+      exit=0 :: strategy=async nprocs=2 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=2.436467 hashes_per_second=4876478 comm_seconds=0.064172 recovery=-1
+[run] exp=fullsweep strat=async np=2 rep=3/3
+      exit=0 :: strategy=async nprocs=2 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=2.392835 hashes_per_second=4965396 comm_seconds=0.001806 recovery=-1
+[run] exp=fullsweep strat=async np=4 rep=1/3
+      exit=0 :: strategy=async nprocs=4 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=1.212857 hashes_per_second=9796187 comm_seconds=0.054342 recovery=-1
+[run] exp=fullsweep strat=async np=4 rep=2/3
+      exit=0 :: strategy=async nprocs=4 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=1.215249 hashes_per_second=9776910 comm_seconds=0.055861 recovery=-1
+[run] exp=fullsweep strat=async np=4 rep=3/3
+      exit=0 :: strategy=async nprocs=4 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=1.227564 hashes_per_second=9678825 comm_seconds=0.067868 recovery=-1
+[run] exp=fullsweep strat=async np=8 rep=1/3
+      exit=0 :: strategy=async nprocs=8 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=0.622544 hashes_per_second=19085186 comm_seconds=0.041701 recovery=-1
+[run] exp=fullsweep strat=async np=8 rep=2/3
+      exit=0 :: strategy=async nprocs=8 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=0.606483 hashes_per_second=19590628 comm_seconds=0.036894 recovery=-1
+[run] exp=fullsweep strat=async np=8 rep=3/3
+      exit=0 :: strategy=async nprocs=8 length=5 alphabet_size=26 batch=2000 found=0 found_index=-1 finder_rank=-1 candidates=11881376 wall_seconds=0.615284 hashes_per_second=19310395 comm_seconds=0.027647 recovery=-1
+
+### experiment: early  (csv: results/quick_early_27836.csv) ###
+[run] exp=early strat=collective np=1 rep=1/3
+      exit=0 :: strategy=collective nprocs=1 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5940689 wall_seconds=2.399769 hashes_per_second=2475525 comm_seconds=0.000302 recovery=1
+[run] exp=early strat=collective np=1 rep=2/3
+      exit=0 :: strategy=collective nprocs=1 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5940689 wall_seconds=2.407106 hashes_per_second=2467980 comm_seconds=0.000305 recovery=1
+[run] exp=early strat=collective np=1 rep=3/3
+      exit=0 :: strategy=collective nprocs=1 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5940689 wall_seconds=2.421833 hashes_per_second=2452973 comm_seconds=0.000306 recovery=1
+[run] exp=early strat=collective np=2 rep=1/3
+      exit=0 :: strategy=collective nprocs=2 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5942345 wall_seconds=1.225960 hashes_per_second=4847095 comm_seconds=0.024351 recovery=1
+[run] exp=early strat=collective np=2 rep=2/3
+      exit=0 :: strategy=collective nprocs=2 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5942345 wall_seconds=1.247035 hashes_per_second=4765180 comm_seconds=0.062975 recovery=1
+[run] exp=early strat=collective np=2 rep=3/3
+      exit=0 :: strategy=collective nprocs=2 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5942345 wall_seconds=1.205902 hashes_per_second=4927718 comm_seconds=0.023348 recovery=1
+[run] exp=early strat=collective np=4 rep=1/3
+      exit=0 :: strategy=collective nprocs=4 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5943173 wall_seconds=0.614182 hashes_per_second=9676562 comm_seconds=0.031977 recovery=1
+[run] exp=early strat=collective np=4 rep=2/3
+      exit=0 :: strategy=collective nprocs=4 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5943173 wall_seconds=0.608523 hashes_per_second=9766556 comm_seconds=0.015856 recovery=1
+[run] exp=early strat=collective np=4 rep=3/3
+      exit=0 :: strategy=collective nprocs=4 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5943173 wall_seconds=0.616847 hashes_per_second=9634753 comm_seconds=0.033477 recovery=1
+[run] exp=early strat=collective np=8 rep=1/3
+      exit=0 :: strategy=collective nprocs=8 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5950587 wall_seconds=0.315850 hashes_per_second=18839926 comm_seconds=0.027213 recovery=1
+[run] exp=early strat=collective np=8 rep=2/3
+      exit=0 :: strategy=collective nprocs=8 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5950587 wall_seconds=0.309072 hashes_per_second=19253066 comm_seconds=0.017301 recovery=1
+[run] exp=early strat=collective np=8 rep=3/3
+      exit=0 :: strategy=collective nprocs=8 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5950587 wall_seconds=0.314861 hashes_per_second=18899079 comm_seconds=0.022119 recovery=1
+[run] exp=early strat=async np=1 rep=1/3
+      exit=0 :: strategy=async nprocs=1 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5940689 wall_seconds=2.401235 hashes_per_second=2474014 comm_seconds=0.000000 recovery=1
+[run] exp=early strat=async np=1 rep=2/3
+      exit=0 :: strategy=async nprocs=1 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5940689 wall_seconds=2.516505 hashes_per_second=2360690 comm_seconds=0.000000 recovery=1
+[run] exp=early strat=async np=1 rep=3/3
+      exit=0 :: strategy=async nprocs=1 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5940689 wall_seconds=2.366246 hashes_per_second=2510596 comm_seconds=0.000000 recovery=1
+[run] exp=early strat=async np=2 rep=1/3
+      exit=0 :: strategy=async nprocs=2 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5902345 wall_seconds=1.171690 hashes_per_second=5037461 comm_seconds=0.000919 recovery=1
+[run] exp=early strat=async np=2 rep=2/3
+      exit=0 :: strategy=async nprocs=2 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=6034345 wall_seconds=1.237662 hashes_per_second=4875600 comm_seconds=0.000457 recovery=1
+[run] exp=early strat=async np=2 rep=3/3
+      exit=0 :: strategy=async nprocs=2 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5848345 wall_seconds=1.185313 hashes_per_second=4934008 comm_seconds=0.000868 recovery=1
+[run] exp=early strat=async np=4 rep=1/3
+      exit=0 :: strategy=async nprocs=4 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5881173 wall_seconds=0.584787 hashes_per_second=10056941 comm_seconds=0.000825 recovery=1
+[run] exp=early strat=async np=4 rep=2/3
+      exit=0 :: strategy=async nprocs=4 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=6033173 wall_seconds=0.613291 hashes_per_second=9837373 comm_seconds=0.000766 recovery=1
+[run] exp=early strat=async np=4 rep=3/3
+      exit=0 :: strategy=async nprocs=4 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5827173 wall_seconds=0.583007 hashes_per_second=9995026 comm_seconds=0.000798 recovery=1
+[run] exp=early strat=async np=8 rep=1/3
+      exit=0 :: strategy=async nprocs=8 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5992587 wall_seconds=0.306020 hashes_per_second=19582322 comm_seconds=0.000575 recovery=1
+[run] exp=early strat=async np=8 rep=2/3
+      exit=0 :: strategy=async nprocs=8 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=5868587 wall_seconds=0.296154 hashes_per_second=19815967 comm_seconds=0.000741 recovery=1
+[run] exp=early strat=async np=8 rep=3/3
+      exit=0 :: strategy=async nprocs=8 length=5 alphabet_size=26 batch=2000 found=1 found_index=5940688 finder_rank=0 candidates=6086587 wall_seconds=0.307834 hashes_per_second=19772277 comm_seconds=0.000806 recovery=1
+
+launches executed: 48 of 48 planned
+benchmark_status=COMPLETE

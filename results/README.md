@@ -3,8 +3,12 @@
 This directory holds **measured** benchmark output: CSV files produced by real
 runs and the plots generated from them.
 
-Nothing in here is committed to git (see the repository `.gitignore`), and nothing
-in here is fabricated. The numbers come from running the benchmark on real
+Local output in here is not committed to git (see the repository `.gitignore`),
+and nothing in here is fabricated. The one exception is `results/lotus/`, which
+keeps the raw CSVs, metadata, and run logs of archived Lotus cluster runs (one
+directory per SLURM job) so that results quoted in the documentation stay
+reproducible. Each of those directories has its own README with the run details
+and checksums. The numbers come from running the benchmark on real
 hardware. To generate them:
 
 ```sh

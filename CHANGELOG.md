@@ -6,7 +6,12 @@ semantic versioning once it reaches a tagged release.
 
 ## [Unreleased]
 
-Nothing yet. See the roadmap for what v0.2 adds.
+### Added
+- First Lotus cluster results (SLURM job 27836, one node, 1–8 processes): raw
+  CSVs, metadata, and run log archived under `results/lotus/job27836/`.
+- `benchmarks/analyze_results.py`: validates a job's CSVs and reports medians,
+  spread, speedup, and efficiency, with SVG charts (no third-party packages).
+- Preliminary results in the README and `docs/PERFORMANCE.md`.
 
 ## [0.1.0] — 2026-11-12
 

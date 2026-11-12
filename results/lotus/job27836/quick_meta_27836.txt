@@ -1,0 +1,21 @@
+timestamp_utc=2026-11-12T08:09:07Z
+git_commit=36f4cdb7c81ae804af99f336c678f95e449ebe37
+git_describe=v0.1.0-7-g36f4cdb
+mpicc_version=gcc (GCC) 13.3.0
+srun_version=slurm 25.11.4
+openssl_version=OpenSSL 3.2.1 30 Jan 2024 (Library: OpenSSL 3.2.1 30 Jan 2024)
+slurm_job_id=27836
+slurm_nnodes=1
+slurm_ntasks=8
+slurm_nodelist=compute14
+cpu_model=AMD EPYC 7352 24-Core Processor
+cpu_sockets=2
+cpu_cores_per_socket=24
+experiments=fullsweep early
+strategies=collective async
+procs=1 2 4 8
+repeats=3
+length=5 alphabet=lower batch=2000 poll=1
+keyspace=11881376 early_index=5940688
+planned_launches=48
+correctness_validation=PASSED
