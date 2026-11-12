@@ -5,6 +5,7 @@
 
 #include "search.h"
 #include "strategies.h"
+#include "benchmark.h"
 
 /*
  * Command-line driver for ParallelCrack.
@@ -34,6 +35,8 @@ typedef struct {
     int         quiet;           /* suppress the human-readable banner */
     int         recover;         /* 1 if a file-recovery demo was requested */
     char        recover_path[256]; /* base path for the file-recovery demo */
+    int         csv;             /* 1 if a CSV row should be appended */
+    char        csv_path[256];   /* where to append the CSV row */
     int         ok;              /* 0 if parsing failed and we should exit */
 } run_params;
 
@@ -73,6 +76,7 @@ static void print_usage(const char *program)
     printf("  --recover-file <P>  After finding the password, encrypt a synthetic\n");
     printf("                      file and recover it to prove the password is correct\n");
     printf("                      (writes P.plain, P.enc, P.recovered)\n");
+    printf("  --csv <PATH>        Append one measured row to a CSV file (for plotting)\n");
     printf("  --quiet             Only print the one-line metrics summary\n");
     printf("  --help              Show this help and exit\n");
 }
@@ -95,6 +99,8 @@ static run_params parse_args(int argc, char **argv)
     p.quiet         = 0;
     p.recover       = 0;
     p.recover_path[0] = '\0';
+    p.csv           = 0;
+    p.csv_path[0]   = '\0';
     p.ok            = 1;
 
     int want_full_sweep = 0;
@@ -152,6 +158,11 @@ static run_params parse_args(int argc, char **argv)
             p.recover = 1;
             strncpy(p.recover_path, argv[i], sizeof(p.recover_path) - 1);
             p.recover_path[sizeof(p.recover_path) - 1] = '\0';
+        } else if (strcmp(argv[i], "--csv") == 0 && i + 1 < argc) {
+            i++;
+            p.csv = 1;
+            strncpy(p.csv_path, argv[i], sizeof(p.csv_path) - 1);
+            p.csv_path[sizeof(p.csv_path) - 1] = '\0';
         } else if (strcmp(argv[i], "--quiet") == 0) {
             p.quiet = 1;
         } else {
@@ -412,6 +423,29 @@ int main(int argc, char **argv)
                    result.finder_rank, result.candidates_evaluated,
                    result.wall_seconds, hashes_per_second, result.comm_seconds,
                    recovery_state);
+        }
+
+        /* Append one measured row to the CSV, if requested. This is the only
+           place benchmark data is produced, and it is always real measurement. */
+        if (params.csv == 1) {
+            benchmark_record record;
+            record.strategy             = strategy_name(params.strategy);
+            record.nprocs               = size;
+            record.length               = config.length;
+            record.alphabet_size        = config.symbol_count;
+            record.batch_size           = config.batch_size;
+            record.found                = result.found;
+            record.finder_rank          = result.finder_rank;
+            record.candidates_evaluated = result.candidates_evaluated;
+            record.wall_seconds         = result.wall_seconds;
+            record.hashes_per_second    = hashes_per_second;
+            record.comm_seconds         = result.comm_seconds;
+            record.rounds               = result.rounds;
+
+            if (benchmark_append_csv(params.csv_path, &record) != 0) {
+                fprintf(stderr, "Warning: could not write CSV row to %s\n",
+                        params.csv_path);
+            }
         }
     }
 
