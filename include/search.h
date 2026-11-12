@@ -38,6 +38,7 @@ typedef struct {
     int           length;       /* candidate length */
     long          keyspace;     /* symbol_count ^ length */
     long          batch_size;   /* candidates searched between coordination points */
+    int           poll_interval;/* batches between stop-message checks (async only) */
     unsigned char target_digest[CRYPTO_SHA256_LEN]; /* SHA-256 of the secret target */
 } search_config;
 

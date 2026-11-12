@@ -34,10 +34,13 @@ enum {
     TAG_STOP  = 3   /* rank 0 -> worker: "stop searching now"                */
 };
 
-/* How many batches a worker searches between checks for a stop message. Keeping
-   this at one batch means a worker reacts to a stop promptly after each batch,
-   which keeps early-termination latency low without checking too often. */
-#define WORKER_POLL_EVERY_BATCHES 1
+/*
+ * How many batches a worker searches between checks for a stop message is
+ * configurable per run via config->poll_interval (the --poll option). A small
+ * interval reacts to a stop quickly (low early-termination latency) but checks
+ * more often; a larger interval spends less time checking but reacts more slowly.
+ * This is exactly the knob the roadmap's "adaptive polling" work will tune.
+ */
 
 /*
  * Worker side (every rank except rank 0).
@@ -66,6 +69,8 @@ static void run_worker(const search_config *config, MPI_Comm comm, int rank,
     MPI_Irecv(&stop_value, 1, MPI_INT, 0, TAG_STOP, comm, &stop_request);
     comm_time += MPI_Wtime() - t0;
 
+    /* How many batches between stop checks; always at least 1. */
+    int poll_every = (config->poll_interval > 0) ? config->poll_interval : 1;
     int batches_since_check = 0;
 
     while (next_index < config->keyspace && found_local == 0 && stopped == 0) {
@@ -84,7 +89,7 @@ static void run_worker(const search_config *config, MPI_Comm comm, int rank,
                non-blocking: it reports whether the stop message has arrived yet
                without waiting, so a worker never stalls here. */
             batches_since_check++;
-            if (batches_since_check >= WORKER_POLL_EVERY_BATCHES) {
+            if (batches_since_check >= poll_every) {
                 batches_since_check = 0;
                 int stop_ready = 0;
                 double tt = MPI_Wtime();

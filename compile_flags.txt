@@ -1,0 +1,6 @@
+-Iinclude
+-std=c11
+-Wall
+-Wextra
+-I/opt/ohpc/pub/mpi/openmpi5-gnu14/5.0.7/include
+-I/opt/tools/eb/software/OpenSSL/3/include

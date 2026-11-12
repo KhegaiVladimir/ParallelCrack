@@ -43,41 +43,82 @@ count exceeds the number of cores.
 
 ## Running on the Lotus cluster
 
-The target process counts for the scaling study are **1, 2, 4, 8, 16, 32, 48** on
-a single node, with multi-node runs (96–960) planned for a later version. Load the
-same modules used to build, then run the sweep inside a job allocation.
+Lotus uses SLURM, and MPI programs are launched with `srun --mpi=pmi2` (the same
+launcher as the Lab 3 batch file). OpenMPI (`openmpi5`) is loaded by default; load
+OpenSSL the same way you did to build.
 
-### Interactive allocation
+### Process counts and node mapping
 
-```sh
-module load OpenSSL/3          # same module used to build
-make
+The strong-scaling study uses the Lab 4 process counts:
 
-# Grab an interactive allocation, then sweep. Use srun as the launcher.
-salloc --nodes=1 --ntasks=48 --time=00:30:00
-MPIRUN="srun --mpi=pmix" benchmarks/run.sh \
-    --strategy collective --length 6 --full-sweep \
-    --procs "1 2 4 8 16 32 48" --repeats 3 --csv results/collective_lotus.csv
+```
+1, 2, 4, 8, 16, 32, 48, 96, 192, 384, 768, 960
 ```
 
-### Batch job (sbatch)
+With `--ntasks-per-node=48` (48 cores per compute node, as in the Lab 2/Lab 3
+batch files), the node counts are:
 
-Save this as `benchmarks/sweep.sbatch` and submit it with `sbatch`. It does **not**
-launch automatically — you submit it yourself when you are ready.
+| Processes | Nodes (`-N`) | Processes | Nodes (`-N`) |
+|-----------|--------------|-----------|--------------|
+| 1 – 48    | 1            | 192       | 4            |
+| 96        | 2            | 384       | 8            |
+| —         | —            | 768       | 16           |
+| —         | —            | 960       | 20           |
+
+The largest run (960 tasks) needs 20 nodes. Lab 3 ran on 35 nodes, so these counts
+are within the compute partition's capacity — but **confirm `sinfo` on Lotus**
+before requesting large allocations, since partition limits can change.
+
+### Interactive run (a single process count)
+
+```sh
+module load OpenSSL/3
+make
+
+# Example: 8 processes, both strategies, full-sweep workload.
+srun --mpi=pmi2 -n 8 ./parallelcrack --strategy collective --full-sweep
+srun --mpi=pmi2 -n 8 ./parallelcrack --strategy async --full-sweep
+```
+
+### Interactive sweep (single node, up to 48)
+
+```sh
+salloc --partition=compute --nodes=1 --ntasks=48 --time=00:30:00
+module load OpenSSL/3
+make
+MPIRUN="srun --mpi=pmi2" benchmarks/run.sh \
+    --strategy collective --length 6 --full-sweep \
+    --procs "1 2 4 8 16 32 48" --repeats 3 --csv results/collective_lotus.csv
+MPIRUN="srun --mpi=pmi2" benchmarks/run.sh \
+    --strategy async --length 6 --full-sweep \
+    --procs "1 2 4 8 16 32 48" --repeats 3 --csv results/async_lotus.csv
+```
+
+### Full benchmark (batch job, multi-node)
+
+Save this as `benchmarks/sweep.sbatch` and submit it yourself with `sbatch` — it
+does **not** launch automatically. It follows the Lab 3 batch style
+(`#SBATCH -n`, `-N`, `--ntasks-per-node=48`). This example covers the single-node
+counts; for the multi-node counts (96–960) raise `-N`/`-n` per the table above and
+submit a separate job, keeping each CSV labelled with its job id.
 
 ```bash
 #!/usr/bin/env bash
 #SBATCH --job-name=parallelcrack
-#SBATCH --nodes=1
-#SBATCH --ntasks=48
+#SBATCH --partition=compute
+#SBATCH -N 1
+#SBATCH -n 48
+#SBATCH --ntasks-per-node=48
 #SBATCH --time=00:30:00
 #SBATCH --output=slurm-%j.out
 
 module load OpenSSL/3
 make
 
+# Strong scaling: fixed global workload (length 6, full sweep), both strategies,
+# identical inputs, repeated 3x. Each run writes one CSV row.
 for strat in collective async; do
-    MPIRUN="srun --mpi=pmix" benchmarks/run.sh \
+    MPIRUN="srun --mpi=pmi2" benchmarks/run.sh \
         --strategy "$strat" --length 6 --full-sweep \
         --procs "1 2 4 8 16 32 48" --repeats 3 \
         --csv "results/${strat}_${SLURM_JOB_ID}.csv"
@@ -90,18 +131,33 @@ Submit with:
 sbatch benchmarks/sweep.sbatch
 ```
 
-### Multi-node (planned, v0.5)
+For the multi-node counts, change the header to the row you need, e.g. for 960
+processes: `#SBATCH -N 20`, `#SBATCH -n 960`, `#SBATCH --ntasks-per-node=48`, and
+set `--procs "96 192 384 768 960"`.
 
-For 96–960 processes across multiple nodes, request more nodes and set `--ntasks`
-accordingly (for example `--nodes=20 --ntasks=960`), then pass the larger
-`--procs` list. Do not schedule these large jobs automatically; launch them
-deliberately and keep each CSV labelled with its job id.
+## Exporting results for analysis
+
+The CSVs under `results/` are plain text and ready for analysis anywhere:
+
+```sh
+# Combine strategy CSVs and plot speedup / efficiency / hash rate.
+python3 benchmarks/plot.py results/collective_lotus.csv results/async_lotus.csv \
+    --out results/scaling.png
+
+# Or copy the CSVs off the cluster for analysis elsewhere.
+scp lotus:~/ParallelCrack/results/*_lotus.csv ./local-results/
+```
+
+`plot.py` also prints the averaged table (speedup and efficiency per process
+count) to stdout, so the numbers are visible without opening the image.
 
 ## Reproducibility notes
 
-* Fix `--length`, `--alphabet`, and `--batch` across a sweep so the only variable
-  is the process count.
+* Fix `--length`, `--alphabet`, `--batch`, and `--poll` across a sweep so the only
+  variable is the process count (strong scaling: one fixed global workload).
+* Compare both strategies on the **same** inputs at each process count.
 * Use `--full-sweep` (target at the last index) or `--no-match` for the longest,
   most stable measurement; a target found early finishes before scaling effects
   are visible.
 * Keep `--repeats` at 3 or more and let `plot.py` average them.
+* Results are real measurements only — never hand-edit a CSV.

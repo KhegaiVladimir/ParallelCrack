@@ -82,21 +82,27 @@ ParallelCrack/
 
 ## Building
 
-You need an MPI compiler (`mpicc`) and OpenSSL 3 development headers.
+The build follows the COMP 380 Lab 4 convention: compile with the MPI wrapper
+(`mpicc`), strict warnings as errors, `-g -O3`, and `-msse4.2` on x86. You need an
+MPI compiler and OpenSSL 3 development headers.
+
+### On Lotus (compilation)
+
+On Lotus, OpenMPI (`openmpi5`) is loaded by default; you only need to add OpenSSL,
+which puts `openssl/*.h` on `CPATH` and `libcrypto` on `LIBRARY_PATH` so a plain
+`-lcrypto` links with no explicit `-I`/`-L`:
 
 ```sh
+module load OpenSSL/3
 make                      # builds ./parallelcrack
 make clean                # removes build output
 ```
 
-On the Lotus cluster:
+### On macOS (local development)
 
-```sh
-module load OpenSSL/3      # puts openssl/*.h and libcrypto on the search path
-make
-```
-
-On macOS with Homebrew (used during development):
+OpenSSL is keg-only under Homebrew, so point the build at it. The x86-only
+(`-msse4.2`) and Linux-only (`-rdynamic`) flags are dropped automatically on Apple
+Silicon, so the same `make` works:
 
 ```sh
 brew install open-mpi openssl@3
@@ -105,35 +111,62 @@ make OPENSSL_PREFIX=$(brew --prefix openssl@3)
 
 ## Running
 
+### Quick correctness tests (local, macOS)
+
+The default workload (`--length 4`, lower-case alphabet, target in the middle of
+the keyspace) is small and finishes in well under a second — suitable as a quick
+correctness check:
+
 ```sh
-# Quick correctness run: small keyspace, target found quickly, 4 processes
-mpirun -np 4 ./parallelcrack --strategy collective --alphabet lower --length 4
+# Collective strategy, 4 processes
+mpirun -np 4 ./parallelcrack --strategy collective --length 4
 
-# The asynchronous strategy on the same workload
-mpirun -np 4 ./parallelcrack --strategy async --alphabet lower --length 4
+# Asynchronous strategy on the same workload
+mpirun -np 4 ./parallelcrack --strategy async --length 4
 
-# Force a target that no candidate matches (exercises the no-match path)
+# No-match path (scans the whole keyspace)
 mpirun -np 4 ./parallelcrack --strategy async --length 4 --no-match
 
 # Recover a locally generated encrypted file after finding the password
-mpirun -np 4 ./parallelcrack --length 4 --recover-file /tmp/pc_demo.bin
+mpirun -np 4 ./parallelcrack --length 4 --recover-file /tmp/pc_demo
 
-# Append a metrics row to a CSV for later plotting
-mpirun -np 8 ./parallelcrack --length 5 --full-sweep --csv results/run.csv
+# Run the full unit + integration test suite
+make test OPENSSL_PREFIX=$(brew --prefix openssl@3)
 ```
 
-Run `./parallelcrack --help` for the full list of options.
+### Interactive execution on Lotus (SLURM)
+
+Following the professor's Lab 4 convention (`srun -n 8 ./lab4` / `./lab4 --sweep`),
+ParallelCrack uses the same launcher. On Lotus, MPI programs are launched with
+`srun --mpi=pmi2` (as in the Lab 3 batch file):
+
+```sh
+# The two strategies, 8 processes
+srun --mpi=pmi2 -n 8 ./parallelcrack --strategy collective
+srun --mpi=pmi2 -n 8 ./parallelcrack --strategy async
+
+# Full-sweep benchmarking workload (target at the last index -> whole keyspace)
+srun --mpi=pmi2 -n 8 ./parallelcrack --strategy collective --full-sweep
+srun --mpi=pmi2 -n 8 ./parallelcrack --strategy async --full-sweep
+```
+
+The workload stays configurable: `--length` (password length), `--batch` (batch
+size), and `--poll` (async stop-check interval, in batches). Run
+`./parallelcrack --help` for the full list.
 
 ## Benchmarking
 
 `benchmarks/run.sh` sweeps a range of process counts, writes one CSV row per run,
 and `benchmarks/plot.py` turns that CSV into speedup / efficiency / hash-rate
-plots. See [`benchmarks/README.md`](benchmarks/README.md) for the reproducible
-commands, including the SLURM batch form for Lotus.
+plots. The strong-scaling study uses the Lab 4 process counts
+(1, 2, 4, 8, 16, 32, 48, 96, 192, 384, 768, 960) with a fixed global workload, and
+compares both strategies on identical inputs. See
+[`benchmarks/README.md`](benchmarks/README.md) for the exact `srun`/`sbatch`
+commands and the node/task mapping for Lotus.
 
 Measured results are **not** committed and are **never** fabricated. The
-`results/` directory holds a README explaining how to generate them; the actual
-numbers come from your own runs.
+`results/` directory holds a README explaining how to generate and export them;
+the actual numbers come from your own runs.
 
 ## Roadmap
 

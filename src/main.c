@@ -32,6 +32,7 @@ typedef struct {
     target_mode mode;            /* how the target was specified */
     long        target_index;    /* used when mode == TARGET_INDEX (-1 = default) */
     char        target_password[SEARCH_MAX_LENGTH + 1]; /* used when mode == TARGET_PASSWORD */
+    int         poll;            /* async stop-check interval, in batches (>=1) */
     int         quiet;           /* suppress the human-readable banner */
     int         recover;         /* 1 if a file-recovery demo was requested */
     char        recover_path[256]; /* base path for the file-recovery demo */
@@ -69,6 +70,7 @@ static void print_usage(const char *program)
     printf("  --alphabet <lower|alnum|printable>  Candidate alphabet (default lower)\n");
     printf("  --length <N>        Candidate length (default 4)\n");
     printf("  --batch <N>         Candidates per batch between coordination (default 2000)\n");
+    printf("  --poll <N>          Async: batches between stop-message checks (default 1)\n");
     printf("  --index <K>         Target is the candidate at index K (reproducible)\n");
     printf("  --password <STR>    Target is this explicit password\n");
     printf("  --no-match          Use a target no candidate can match (no-match test)\n");
@@ -96,6 +98,7 @@ static run_params parse_args(int argc, char **argv)
     p.mode          = TARGET_INDEX;
     p.target_index  = -1;   /* -1 means "pick a sensible default once keyspace is known" */
     p.target_password[0] = '\0';
+    p.poll          = 1;
     p.quiet         = 0;
     p.recover       = 0;
     p.recover_path[0] = '\0';
@@ -140,6 +143,12 @@ static run_params parse_args(int argc, char **argv)
         } else if (strcmp(argv[i], "--batch") == 0 && i + 1 < argc) {
             i++;
             p.batch = atol(argv[i]);
+        } else if (strcmp(argv[i], "--poll") == 0 && i + 1 < argc) {
+            i++;
+            p.poll = atoi(argv[i]);
+            if (p.poll < 1) {
+                p.poll = 1;
+            }
         } else if (strcmp(argv[i], "--index") == 0 && i + 1 < argc) {
             i++;
             p.mode = TARGET_INDEX;
@@ -203,6 +212,9 @@ static int build_config(const run_params *p, search_config *config)
     if (search_config_init(config, p->alphabet, p->length, p->batch) != 0) {
         return -1;
     }
+
+    /* Carry the async polling interval through to the strategy. */
+    config->poll_interval = (p->poll >= 1) ? p->poll : 1;
 
     if (p->mode == TARGET_ABSENT) {
         search_set_target_absent(config);

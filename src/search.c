@@ -61,10 +61,11 @@ int search_config_init(search_config *config, alphabet_id id, int length,
         return -1;
     }
 
-    config->symbols      = alphabet_symbols(id);
-    config->symbol_count = alphabet_count(id);
-    config->length       = length;
-    config->batch_size   = batch_size;
+    config->symbols       = alphabet_symbols(id);
+    config->symbol_count  = alphabet_count(id);
+    config->length        = length;
+    config->batch_size    = batch_size;
+    config->poll_interval = 1;  /* default: check for a stop after every batch */
 
     /*
      * Compute keyspace = symbol_count ^ length, checking for overflow as we go.
