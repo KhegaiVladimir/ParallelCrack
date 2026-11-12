@@ -222,15 +222,11 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    /* Pick the strategy. The asynchronous strategy is wired in once it exists. */
+    /* Pick the strategy. Adding a strategy is a one-line change here plus a new
+       file under src/strategies/ -- the shared search engine is untouched. */
     strategy_fn strategy;
     if (params.strategy == 1) {
-        if (rank == 0) {
-            fprintf(stderr, "The 'async' strategy is not available yet; "
-                            "use --strategy collective.\n");
-        }
-        MPI_Finalize();
-        return 1;
+        strategy = strategy_asynchronous;
     } else {
         strategy = strategy_collective;
     }
