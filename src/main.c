@@ -156,8 +156,10 @@ static run_params parse_args(int argc, char **argv)
         } else if (strcmp(argv[i], "--password") == 0 && i + 1 < argc) {
             i++;
             p.mode = TARGET_PASSWORD;
-            strncpy(p.target_password, argv[i], SEARCH_MAX_LENGTH);
-            p.target_password[SEARCH_MAX_LENGTH] = '\0';
+            /* snprintf null-terminates and bounds the write to the buffer size.
+               A password longer than the configured length is rejected later by
+               search_set_target_password, so bounding here is safe. */
+            snprintf(p.target_password, sizeof(p.target_password), "%s", argv[i]);
         } else if (strcmp(argv[i], "--no-match") == 0) {
             p.mode = TARGET_ABSENT;
         } else if (strcmp(argv[i], "--full-sweep") == 0) {
@@ -165,13 +167,11 @@ static run_params parse_args(int argc, char **argv)
         } else if (strcmp(argv[i], "--recover-file") == 0 && i + 1 < argc) {
             i++;
             p.recover = 1;
-            strncpy(p.recover_path, argv[i], sizeof(p.recover_path) - 1);
-            p.recover_path[sizeof(p.recover_path) - 1] = '\0';
+            snprintf(p.recover_path, sizeof(p.recover_path), "%s", argv[i]);
         } else if (strcmp(argv[i], "--csv") == 0 && i + 1 < argc) {
             i++;
             p.csv = 1;
-            strncpy(p.csv_path, argv[i], sizeof(p.csv_path) - 1);
-            p.csv_path[sizeof(p.csv_path) - 1] = '\0';
+            snprintf(p.csv_path, sizeof(p.csv_path), "%s", argv[i]);
         } else if (strcmp(argv[i], "--quiet") == 0) {
             p.quiet = 1;
         } else {
@@ -245,8 +245,11 @@ static void resolve_secret_password(const run_params *p, const search_config *co
     if (p->mode == TARGET_ABSENT) {
         secret_out[0] = '\0';
     } else if (p->mode == TARGET_PASSWORD) {
-        strncpy(secret_out, p->target_password, SEARCH_MAX_LENGTH);
-        secret_out[SEARCH_MAX_LENGTH] = '\0';
+        /* snprintf always null-terminates and never writes past the buffer. The
+           caller guarantees secret_out holds SEARCH_MAX_LENGTH + 1 bytes, which
+           is exactly enough for a maximum-length password plus its terminator, so
+           there is no truncation. */
+        snprintf(secret_out, (size_t)SEARCH_MAX_LENGTH + 1, "%s", p->target_password);
     } else {
         long index = resolve_target_index(p, config->keyspace);
         search_index_to_candidate(config, index, secret_out);
