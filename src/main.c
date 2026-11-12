@@ -442,13 +442,14 @@ int main(int argc, char **argv)
             }
         } else {
             printf("strategy=%s nprocs=%d length=%d alphabet_size=%d batch=%ld "
-                   "found=%d finder_rank=%d candidates=%ld wall_seconds=%.6f "
-                   "hashes_per_second=%.0f comm_seconds=%.6f recovery=%d\n",
+                   "found=%d found_index=%ld finder_rank=%d candidates=%ld "
+                   "wall_seconds=%.6f hashes_per_second=%.0f comm_seconds=%.6f "
+                   "recovery=%d\n",
                    strategy_name(params.strategy), size, config.length,
                    config.symbol_count, config.batch_size, result.found,
-                   result.finder_rank, result.candidates_evaluated,
-                   result.wall_seconds, hashes_per_second, result.comm_seconds,
-                   recovery_state);
+                   result.found_index, result.finder_rank,
+                   result.candidates_evaluated, result.wall_seconds,
+                   hashes_per_second, result.comm_seconds, recovery_state);
         }
 
         /* Append one measured row to the CSV, if requested. This is the only
