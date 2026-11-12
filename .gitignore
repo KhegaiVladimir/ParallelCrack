@@ -25,3 +25,7 @@ slurm-*.out
 .DS_Store
 *.swp
 compile_commands.json
+
+# Python bytecode cache (from benchmarks/plot.py)
+__pycache__/
+*.pyc

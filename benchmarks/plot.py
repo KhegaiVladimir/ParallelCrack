@@ -70,10 +70,13 @@ def summarize(data):
     return pd.concat(pieces, ignore_index=True)
 
 
-def make_plots(summary, out_path):
+def make_plots(summary, out_path, title=None):
     """Draw the four panels and save to out_path."""
     figure, axes = plt.subplots(2, 2, figsize=(12, 9))
-    figure.suptitle("ParallelCrack — MPI communication strategy benchmark", fontsize=14)
+    heading = "ParallelCrack — collective vs. asynchronous MPI"
+    if title:
+        heading = heading + " — " + title
+    figure.suptitle(heading, fontsize=14)
 
     strategies = sorted(summary["strategy"].unique())
 
@@ -135,6 +138,9 @@ def main():
     parser = argparse.ArgumentParser(description="Plot ParallelCrack benchmark CSVs")
     parser.add_argument("csv", nargs="+", help="input CSV file(s)")
     parser.add_argument("--out", default="results/benchmark.png", help="output image path")
+    parser.add_argument("--title", default=None,
+                        help="optional label added to the figure title, "
+                             "e.g. 'full-sweep' or 'early-termination'")
     args = parser.parse_args()
 
     data = load_data(args.csv)
@@ -148,7 +154,7 @@ def main():
     print(summary.to_string(index=False))
     print()
 
-    make_plots(summary, args.out)
+    make_plots(summary, args.out, title=args.title)
     return 0
 
 
